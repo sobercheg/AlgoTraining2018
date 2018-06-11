@@ -1,9 +1,11 @@
+package utils;
+
 import java.util.Arrays;
 
 /**
  * Common utils for testing.
  */
-public class Utils {
+public class UnitTester {
     public static void assertEquals(Object expected, Object actual) {
         if (checkNulls(expected, actual)) return;
         if (!expected.equals(actual))
