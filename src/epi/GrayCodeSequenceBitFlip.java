@@ -9,7 +9,7 @@ import java.util.List;
  * EPI: Recursion, page 298
  * Compute a Gray code.
  */
-public class GrayCodeSequence {
+public class GrayCodeSequenceBitFlip {
 
     private void generateNext(List<Integer> sequenceSoFar, List<List<Integer>> fullSequences, int len) {
         if (sequenceSoFar.size() == Math.pow(2, len)) {
@@ -41,7 +41,7 @@ public class GrayCodeSequence {
     }
 
     public static void main(String[] args) {
-        GrayCodeSequence sequence = new GrayCodeSequence();
+        GrayCodeSequenceBitFlip sequence = new GrayCodeSequenceBitFlip();
         List<List<Integer>> allSequences = new ArrayList<>();
         sequence.generateNext(new ArrayList<>(), allSequences, 3);
         System.out.println(allSequences);
