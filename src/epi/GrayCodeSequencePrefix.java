@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * EPI: Recursion, page 298
+ * Compute a Gray code using the prefix method.
+ */
 public class GrayCodeSequencePrefix {
 
     private List<String> generateSequence(int len) {
