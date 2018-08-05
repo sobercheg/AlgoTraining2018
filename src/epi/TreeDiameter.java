@@ -4,7 +4,6 @@ import utils.UnitTester;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,69 +11,85 @@ import java.util.List;
  * Compute the Diameter of a Tree
  */
 public class TreeDiameter {
+    static class Edge {
+        int length;
+        Node node;
+
+        Edge(int length, Node node) {
+            this.length = length;
+            this.node = node;
+        }
+    }
 
     static class Node {
-        List<Integer> edges = new ArrayList<>();
-        List<Node> nodes = new ArrayList<>();
+        List<Edge> edges = new ArrayList<>();
 
         Node() {
         }
 
-        Node(List<Integer> edges, List<Node> nodes) {
+        Node(List<Edge> edges) {
             this.edges = edges;
-            this.nodes = nodes;
         }
     }
 
-    static class NodePaths {
-        NodePaths(int maxPathFromNode, int maxSubteeDiameter) {
-            this.maxPathFromNode = maxPathFromNode;
+    static class HeightAndDiameter {
+        HeightAndDiameter(int height, int maxSubteeDiameter) {
+            this.height = height;
             this.maxSubteeDiameter = maxSubteeDiameter;
         }
 
-        int maxPathFromNode;
+        int height;
         int maxSubteeDiameter;
 
     }
 
-    private NodePaths getDiameter(Node root) {
-        int maxPathFromNode = 0;
+    private HeightAndDiameter getDiameter(Node root) {
+        int maxHeightFromNode = 0;
         int maxChildSubtreeDiameter = 0;
-        List<Integer> fromNodeMaxPaths = new ArrayList<>();
-        for (int i = 0; i < root.nodes.size(); i++) {
-            NodePaths childPaths = getDiameter(root.nodes.get(i));
-            fromNodeMaxPaths.add(childPaths.maxPathFromNode + root.edges.get(i));
-            maxPathFromNode = Math.max(maxPathFromNode, childPaths.maxPathFromNode + root.edges.get(i));
+        // Get top 2 paths from node
+        int[] maxHeights = new int[]{0, 0};
+        for (Edge edge : root.edges) {
+            HeightAndDiameter childPaths = getDiameter(edge.node);
+            int heightFromNode = childPaths.height + edge.length;
+            if (heightFromNode > maxHeights[0]) {
+                maxHeights[1] = maxHeights[0];
+                maxHeights[0] = heightFromNode;
+            } else if (heightFromNode > maxHeights[1]) {
+                maxHeights[1] = heightFromNode;
+            }
+            maxHeightFromNode = Math.max(maxHeightFromNode, heightFromNode);
             maxChildSubtreeDiameter = Math.max(maxChildSubtreeDiameter, childPaths.maxSubteeDiameter);
         }
-        // Get top 2 paths from node
-        fromNodeMaxPaths.sort((o1, o2) -> Integer.compare(o2, o1));
-        int maxSubtreeDiameter = (fromNodeMaxPaths.size() > 0 ? fromNodeMaxPaths.get(0) : 0)
-                + (fromNodeMaxPaths.size() > 1 ? fromNodeMaxPaths.get(1) : 0);
-        return new NodePaths(maxPathFromNode, Math.max(maxSubtreeDiameter, maxChildSubtreeDiameter));
+        int maxSubtreeDiameter = maxHeights[0] + maxHeights[1];
+        return new HeightAndDiameter(maxHeightFromNode, Math.max(maxSubtreeDiameter, maxChildSubtreeDiameter));
     }
 
     public static void main(String[] args) {
         TreeDiameter td = new TreeDiameter();
-        Node root = new Node(Arrays.asList(7, 14, 3),
-                Arrays.asList(
-                        new Node(Arrays.asList(4, 3),
-                                Arrays.asList(new Node(Collections.singletonList(6),
-                                        Collections.singletonList(new Node())), new Node())),
-                        new Node(),
-                        new Node(Arrays.asList(2, 1), Arrays.asList(new Node(),
-                                new Node(Arrays.asList(6, 4), Arrays.asList(new Node(), new Node())))
-                        ))
-
+        Node root = new Node(Arrays.asList(
+                new Edge(7, new Node(Arrays.asList(
+                        new Edge(4, new Node(Arrays.asList(new Edge(6, new Node())))),
+                        new Edge(3, new Node())))),
+                new Edge(14, new Node()),
+                new Edge(3, new Node(Arrays.asList(
+                        new Edge(2, new Node()),
+                        new Edge(1, new Node(Arrays.asList(
+                                new Edge(6, new Node()),
+                                new Edge(4, new Node(Arrays.asList(
+                                        new Edge(1, new Node()),
+                                        new Edge(2, new Node()),
+                                        new Edge(3, new Node())))))))))))
         );
-        NodePaths paths = td.getDiameter(root);
+        HeightAndDiameter paths = td.getDiameter(root);
         System.out.println(paths.maxSubteeDiameter);
         UnitTester.assertEquals(31, paths.maxSubteeDiameter);
 
-        root = new Node(Arrays.asList(1, 2),
-                Arrays.asList(
-                        new Node(Arrays.asList(10, 13, 12), Arrays.asList(new Node(), new Node(), new Node())),
-                        new Node()));
+        root = new Node(Arrays.asList(
+                new Edge(1, new Node(Arrays.asList(
+                        new Edge(10, new Node()),
+                        new Edge(13, new Node()),
+                        new Edge(12, new Node())))),
+                new Edge(2, new Node())));
         paths = td.getDiameter(root);
         System.out.println(paths.maxSubteeDiameter);
         UnitTester.assertEquals(25, paths.maxSubteeDiameter);
